@@ -13,6 +13,8 @@ var score=0;
 var gameOver, gameOverImg;
 var restart, restartImg;
 
+var jumpSound, checkPointSound, dieSound;
+
 function preload(){
   trex_running =   loadAnimation("trex1.png","trex3.png","trex4.png");
   trex_collided = loadAnimation("trex_collided.png");
@@ -30,6 +32,10 @@ function preload(){
   
   gameOverImg = loadImage("gameOver.png");
   restartImg = loadImage("restart.png");
+  
+  jumpSound = loadSound("jump.mp3");
+  dieSound = loadSound("die.mp3");
+  checkPointSound = loadSound("checkPoint.mp3");
 }
 
 function setup() {
@@ -69,7 +75,7 @@ function setup() {
 
 function draw() {
   //trex.debug = true;
-  background("pink");
+  background("purple");
   text("Score: "+ score, 500,50);
   
   if (gameState===PLAY){
@@ -78,12 +84,17 @@ function draw() {
   
     if(keyDown("space") && trex.y >= 159) {
       trex.velocityY = -12;
+      jumpSound.play();
     }
   
-    trex.velocityY = trex.velocityY + 0.8
+    trex.velocityY = trex.velocityY + 0.8;
   
     if (ground.x < 0){
       ground.x = ground.width/2;
+    }
+    
+    if (score>0 && score%100===0){
+      checkPointSound.play();
     }
   
     trex.collide(invisibleGround);
@@ -92,6 +103,7 @@ function draw() {
   
     if(obstaclesGroup.isTouching(trex)){
         gameState = END;
+      dieSound.play();
     }
   }
   else if (gameState === END) {
@@ -106,6 +118,7 @@ function draw() {
     
     //change the trex animation
     trex.changeAnimation("collided",trex_collided);
+    
     
     //set lifetime of the game objects so that they are never destroyed
     obstaclesGroup.setLifetimeEach(-1);
